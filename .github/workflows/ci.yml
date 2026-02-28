@@ -1,8 +1,8 @@
-name: Build and Test
+name: Java CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -17,8 +17,16 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Build and test with Maven
-        run: mvn clean test
+      - name: Install Chrome
+        uses: browser-actions/setup-chrome@v1
 
-      - name: Build Docker image
-        run: docker build -t java-site .
+      - name: Install Chromedriver
+        uses: nanasess/setup-chromedriver@v2
+
+      - name: Verify installation
+        run: |
+          google-chrome --version
+          chromedriver --version
+
+      - name: Build and test
+        run: mvn clean test

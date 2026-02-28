@@ -1,0 +1,35 @@
+name: Site CI/CD
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  test-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout site
+        uses: actions/checkout@v4
+
+      - name: Clone tests repo
+        run: git clone https://github.com/RinatMaryatov/java-landing-tests.git
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Install Chromium
+        run: |
+          sudo apt update
+          sudo apt install -y chromium-browser
+
+      - name: Run tests
+        run: |
+          cd java-landing-tests
+          mvn clean test
+
+      - name: Deploy site
+        run: echo "Deploying..."

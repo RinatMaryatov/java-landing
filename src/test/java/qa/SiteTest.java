@@ -16,7 +16,7 @@ public class SiteTest {
     @Test
     void openSiteTest() {
 
-WebDriverManager.chromedriver().setup();
+WebDriverManager.chromedriver().browserVersion("145").setup();
 
 ChromeOptions options = new ChromeOptions();
 options.setBinary("/usr/bin/chromium");

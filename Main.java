@@ -56,7 +56,7 @@ public class Main {
                         <div class="card">
                             <h1>🔥 Привет из Java!</h1>
                             <p>Ринат молодец</p>
-                            <button onclick="alert('Java рулит 😎')">Нажми</button>
+                            <button onclick="alert('Javaaaaa рулит 😎')">Нажми</button>
                         </div>
                     </body>
                     </html>

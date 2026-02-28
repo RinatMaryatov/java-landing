@@ -3,7 +3,7 @@ package qa;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-
+import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -16,7 +16,7 @@ public class SiteTest {
     @Test
     void openSiteTest() {
 
-System.setProperty("webdriver.chrome.driver", "/usr/local/bin/chromedriver");
+WebDriverManager.chromedriver().setup();
 
 ChromeOptions options = new ChromeOptions();
 options.setBinary("/usr/bin/chromium");

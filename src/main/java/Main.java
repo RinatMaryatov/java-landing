@@ -54,9 +54,9 @@ public class Main {
                     </head>
                     <body>
                         <div class="card">
-                            <h1>🔥 Привет привет дорогие друзья с вами Амвей 921123123123123123!</h1>
-                            <p>Ринат молодец</p>
-                            <button onclick="alert('Скачивайте танки')">Нажми</button>
+                            <h1>🔥 Привет Мама :)!</h1>
+                            <p>Как дела?</p>
+                            <button onclick="alert('Я сделал свой сайт')">Нажми</button>
                         </div>
                     </body>
                     </html>

@@ -122,7 +122,7 @@ button:hover{
 
 <script>
 function showMessage(){
-    alert("Ты самая лучшая! ❤️");
+    alert("Ты самая лучшаяяяяяяяяяяяяяя! ❤️");
 }
 
 function createHeart(){

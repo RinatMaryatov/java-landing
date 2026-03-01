@@ -29,9 +29,9 @@ options.addArguments("--disable-gpu");
 WebDriver driver = new ChromeDriver(options);
 
         driver.get("https://java-landing-521w.onrender.com/");
-        WebElement paragraph = driver.findElement(By.xpath("/html/body/div/p"));
+        WebElement paragraph = driver.findElement(By.xpath("/html/body/div[1]/p"));
         String actualText = paragraph.getText();
-        Assertions.assertEquals("Ринат молодец", actualText);
+        Assertions.assertEquals("Я сделал красивый сайт в Docker \uD83D\uDE80", actualText);
 
         driver.quit();
     }

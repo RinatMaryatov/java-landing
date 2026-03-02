@@ -115,20 +115,20 @@ button:hover{
 <body>
 
 <div class="card">
-    <h1>💖 Привет Мама! 💖</h1>
-    <p>Я сделал красивый сайт в Docker 🚀</p>
-    <button onclick="showMessage()">Открыть сюрприз</button>
+    <h1>Бавыкен, теперь я умею делать сайты</h1>
+    <p>И не просто сайты, а с автодеплоем на сервер после успешного пайплайна (ну короч полностью продакшн подход к разработке)</p>
+    <button onclick="showMessage()">Открыть</button>
 </div>
 
 <script>
 function showMessage(){
-    alert("Ты самая лучшаяяяяяяяяяяяяяя! ❤️");
+    alert("ПУТИН ПУТИН ПУТИН!");
 }
 
 function createHeart(){
     const heart = document.createElement("div");
     heart.classList.add("heart");
-    heart.innerHTML = "💖";
+    heart.innerHTML = "🇷🇺";
     heart.style.left = Math.random()*100 + "vw";
     heart.style.fontSize = (20 + Math.random()*20) + "px";
     document.body.appendChild(heart);

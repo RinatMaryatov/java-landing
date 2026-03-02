@@ -27,7 +27,7 @@ public class Main {
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Волшебная открытка</title>
+<title>Мир танков</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -115,8 +115,8 @@ button:hover{
 <body>
 
 <div class="card">
-    <h1>Бавыкен, теперь я умею делать сайты</h1>
-    <p>И не просто сайты, а с автодеплоем на сервер после успешного пайплайна (ну короч полностью продакшн подход к разработке)</p>
+    <h1>Эдик петух</h1>
+    <p>Ай фука капаток</p>
     <button onclick="showMessage()">Открыть</button>
 </div>
 

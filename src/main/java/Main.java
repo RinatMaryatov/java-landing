@@ -4,32 +4,24 @@ import com.sun.net.httpserver.HttpExchange;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 public class Main {
 
     public static void main(String[] args) throws Exception {
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
 
-        // Контекст для главной страницы
+        // Главная страница
         server.createContext("/", new HtmlHandler());
 
-        // Контекст для фонового изображения
-        server.createContext("/background.png", exchange -> {
-            byte[] bytes = Files.readAllBytes(Paths.get("src/main/resources/background.png"));
-            exchange.getResponseHeaders().add("Content-Type", "image/png");
-            exchange.sendResponseHeaders(200, bytes.length);
-            OutputStream os = exchange.getResponseBody();
-            os.write(bytes);
-            os.close();
-        });
+        // Фон и изображения карусели берём из classpath
+        server.createContext("/background.png", new ResourceHandler("background.png"));
 
         server.setExecutor(null);
         server.start();
         System.out.println("Server started at http://localhost:8080");
     }
 
+    // Обработчик HTML
     static class HtmlHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
@@ -42,7 +34,6 @@ public class Main {
 <title>Мир Танков</title>
 <style>
 *{margin:0; padding:0; box-sizing:border-box; font-family:Arial, sans-serif;}
-
 body{
     background-image: url('background.png');
     background-size: cover;
@@ -52,8 +43,6 @@ body{
     color: white;
     overflow-x: hidden;
 }
-
-/* Навигация */
 header{
     display:flex;
     justify-content: space-between;
@@ -68,8 +57,6 @@ nav a{
     font-weight:bold;
 }
 nav a:hover{color:#f9ca24;}
-
-/* Главный баннер */
 .hero{
     text-align:center;
     margin-top:100px;
@@ -94,8 +81,6 @@ button{
 button:hover{
     transform:scale(1.1);
 }
-
-/* Карусель изображений */
 .carousel{
     display:flex;
     justify-content:center;
@@ -111,8 +96,6 @@ button:hover{
 .carousel img:hover{
     transform: scale(1.1);
 }
-
-/* Анимация "сердечки" */
 .heart{
     position:absolute;
     font-size:20px;
@@ -124,8 +107,6 @@ button:hover{
     50%{opacity:1;}
     100%{transform:translateY(-110vh) scale(1.5); opacity:0;}
 }
-
-/* Адаптивность для мобильных */
 @media (max-width: 768px){
     .hero h2{font-size:36px;}
     .hero p{font-size:16px;}
@@ -148,7 +129,7 @@ button:hover{
 <div class="hero">
     <h2>С Днём Победы!</h2>
     <p>Память сильнее времени. Поздравляем всех с праздником!</p>
-    <button onclick="showMessage()">Посмотреть видео</button>
+    <button onclick="alert('С Днём Победы!')">Посмотреть видео</button>
 </div>
 
 <div class="carousel">
@@ -158,11 +139,6 @@ button:hover{
 </div>
 
 <script>
-function showMessage(){
-    alert("С Днём Победы!");
-}
-
-// Создание "сердечек" / флагов
 function createHeart(){
     const heart = document.createElement("div");
     heart.classList.add("heart");
@@ -172,7 +148,6 @@ function createHeart(){
     document.body.appendChild(heart);
     setTimeout(()=>heart.remove(),6000);
 }
-
 setInterval(createHeart,500);
 </script>
 
@@ -182,11 +157,35 @@ setInterval(createHeart,500);
 
             exchange.getResponseHeaders().add("Content-Type", "text/html; charset=UTF-8");
             byte[] bytes = response.getBytes("UTF-8");
-
             exchange.sendResponseHeaders(200, bytes.length);
             OutputStream os = exchange.getResponseBody();
             os.write(bytes);
             os.close();
+        }
+    }
+
+    // Обработчик ресурсов из classpath
+    static class ResourceHandler implements HttpHandler {
+        private final String resourceName;
+
+        public ResourceHandler(String resourceName){
+            this.resourceName = resourceName;
+        }
+
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            try (var is = Main.class.getClassLoader().getResourceAsStream(resourceName)) {
+                if(is == null){
+                    exchange.sendResponseHeaders(404, -1);
+                    return;
+                }
+                byte[] bytes = is.readAllBytes();
+                exchange.getResponseHeaders().add("Content-Type", "image/png");
+                exchange.sendResponseHeaders(200, bytes.length);
+                OutputStream os = exchange.getResponseBody();
+                os.write(bytes);
+                os.close();
+            }
         }
     }
 }

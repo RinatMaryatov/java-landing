@@ -16,7 +16,7 @@ public class Main {
         // Главная страница
         server.createContext("/", new HtmlHandler());
 
-        // Статические файлы из папки static
+        // Обработчик для статических файлов
         server.createContext("/static/", exchange -> {
             String path = exchange.getRequestURI().getPath().replaceFirst("/static/", "");
             try {
@@ -37,7 +37,6 @@ public class Main {
         System.out.println("Server started at http://localhost:8080");
     }
 
-    // HTML
     static class HtmlHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {

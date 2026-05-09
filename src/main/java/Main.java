@@ -5,8 +5,6 @@ import com.sun.net.httpserver.HttpExchange;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 public class Main {
 
@@ -16,27 +14,15 @@ public class Main {
         // Главная страница
         server.createContext("/", new HtmlHandler());
 
-        // Обработчик для статических файлов
-        server.createContext("/static/", exchange -> {
-            String path = exchange.getRequestURI().getPath().replaceFirst("/static/", "");
-            try {
-                byte[] bytes = Files.readAllBytes(Paths.get("static", path));
-                String contentType = path.endsWith(".png") ? "image/png" : "application/octet-stream";
-                exchange.getResponseHeaders().add("Content-Type", contentType);
-                exchange.sendResponseHeaders(200, bytes.length);
-                OutputStream os = exchange.getResponseBody();
-                os.write(bytes);
-                os.close();
-            } catch (IOException e) {
-                exchange.sendResponseHeaders(404, -1);
-            }
-        });
+        // Статика из classpath
+        server.createContext("/static/", new ResourceHandler());
 
         server.setExecutor(null);
         server.start();
         System.out.println("Server started at http://localhost:8080");
     }
 
+    // HTML
     static class HtmlHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
@@ -48,41 +34,26 @@ public class Main {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Мир Танков</title>
 <style>
-*{margin:0; padding:0; box-sizing:border-box; font-family:Arial,sans-serif;}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
 body{
-    background-image: url('/static/background.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
+    background-image:url('/static/background.png');
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    background-attachment:fixed;
     color:white;
     overflow-x:hidden;
 }
-header{
-    display:flex;
-    justify-content: space-between;
-    padding:20px 50px;
-    background: rgba(0,0,0,0.5);
-}
+header{display:flex;justify-content:space-between;padding:20px 50px;background:rgba(0,0,0,0.5);}
 header h1{font-size:28px;}
-nav a{
-    margin-left:20px;
-    text-decoration:none;
-    color:white;
-    font-weight:bold;
-}
+nav a{margin-left:20px;text-decoration:none;color:white;font-weight:bold;}
 nav a:hover{color:#f9ca24;}
 .hero{text-align:center;margin-top:100px;}
 .hero h2{font-size:50px;text-shadow:2px 2px 10px black;}
 .hero p{font-size:20px;margin:20px 0;}
-button{
-    padding:12px 25px;border:none;border-radius:25px;font-weight:bold;
-    cursor:pointer;background:#f9ca24;transition:0.3s;
-}
+button{padding:12px 25px;border:none;border-radius:25px;font-weight:bold;cursor:pointer;background:#f9ca24;transition:0.3s;}
 button:hover{transform:scale(1.1);}
-.carousel{
-    display:flex;justify-content:center;margin-top:50px;gap:20px;flex-wrap:wrap;
-}
+.carousel{display:flex;justify-content:center;margin-top:50px;gap:20px;flex-wrap:wrap;}
 .carousel img{width:200px;border-radius:15px;transition:transform 0.3s;}
 .carousel img:hover{transform:scale(1.1);}
 .heart{position:absolute;font-size:20px;animation:float 6s linear infinite;opacity:0.7;}
@@ -137,6 +108,26 @@ setInterval(createHeart,500);
             OutputStream os = exchange.getResponseBody();
             os.write(bytes);
             os.close();
+        }
+    }
+
+    // Обработчик ресурсов из classpath
+    static class ResourceHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            String path = exchange.getRequestURI().getPath().replaceFirst("/static/", "");
+            try (var is = Main.class.getClassLoader().getResourceAsStream(path)) {
+                if (is == null) {
+                    exchange.sendResponseHeaders(404, -1);
+                    return;
+                }
+                byte[] bytes = is.readAllBytes();
+                exchange.getResponseHeaders().add("Content-Type", "image/png");
+                exchange.sendResponseHeaders(200, bytes.length);
+                OutputStream os = exchange.getResponseBody();
+                os.write(bytes);
+                os.close();
+            }
         }
     }
 }

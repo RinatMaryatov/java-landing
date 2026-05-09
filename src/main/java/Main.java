@@ -10,7 +10,6 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
-
         server.createContext("/", new MyHandler());
         server.setExecutor(null);
         server.start();
@@ -31,11 +30,18 @@ public class Main {
 <title>Мир Танков</title>
 <style>
 *{margin:0; padding:0; box-sizing:border-box; font-family:Arial, sans-serif;}
+
 body{
-    background: url('background.png') center/cover no-repeat;
+    background-image: url('background.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     color: white;
     overflow-x: hidden;
 }
+
+/* Навигация */
 header{
     display:flex;
     justify-content: space-between;
@@ -50,6 +56,8 @@ nav a{
     font-weight:bold;
 }
 nav a:hover{color:#f9ca24;}
+
+/* Главный баннер */
 .hero{
     text-align:center;
     margin-top:100px;
@@ -74,11 +82,14 @@ button{
 button:hover{
     transform:scale(1.1);
 }
+
+/* Карусель изображений */
 .carousel{
     display:flex;
     justify-content:center;
     margin-top:50px;
     gap:20px;
+    flex-wrap: wrap;
 }
 .carousel img{
     width:200px;
@@ -88,6 +99,8 @@ button:hover{
 .carousel img:hover{
     transform: scale(1.1);
 }
+
+/* Анимация "сердечки" */
 .heart{
     position:absolute;
     font-size:20px;
@@ -99,6 +112,13 @@ button:hover{
     50%{opacity:1;}
     100%{transform:translateY(-110vh) scale(1.5); opacity:0;}
 }
+
+/* Адаптивность для мобильных */
+@media (max-width: 768px){
+    .hero h2{font-size:36px;}
+    .hero p{font-size:16px;}
+    .carousel img{width:120px;}
+}
 </style>
 </head>
 <body>
@@ -109,6 +129,7 @@ button:hover{
         <a href="#">Игра</a>
         <a href="#">Кланы</a>
         <a href="#">Киберспорт</a>
+        <a href="#">Сообщество</a>
     </nav>
 </header>
 
@@ -129,6 +150,7 @@ function showMessage(){
     alert("С Днём Победы!");
 }
 
+// Создание "сердечек" / флагов
 function createHeart(){
     const heart = document.createElement("div");
     heart.classList.add("heart");

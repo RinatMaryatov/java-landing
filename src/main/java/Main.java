@@ -4,23 +4,35 @@ import com.sun.net.httpserver.HttpExchange;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class Main {
 
     public static void main(String[] args) throws Exception {
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
-        server.createContext("/", new MyHandler());
+
+        // Контекст для главной страницы
+        server.createContext("/", new HtmlHandler());
+
+        // Контекст для фонового изображения
+        server.createContext("/background.png", exchange -> {
+            byte[] bytes = Files.readAllBytes(Paths.get("src/main/resources/background.png"));
+            exchange.getResponseHeaders().add("Content-Type", "image/png");
+            exchange.sendResponseHeaders(200, bytes.length);
+            OutputStream os = exchange.getResponseBody();
+            os.write(bytes);
+            os.close();
+        });
+
         server.setExecutor(null);
         server.start();
-
         System.out.println("Server started at http://localhost:8080");
     }
 
-    static class MyHandler implements HttpHandler {
+    static class HtmlHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-
             String response = """
 <!DOCTYPE html>
 <html lang="ru">
@@ -169,7 +181,7 @@ setInterval(createHeart,500);
 """;
 
             exchange.getResponseHeaders().add("Content-Type", "text/html; charset=UTF-8");
-            byte[] bytes = response.getBytes(StandardCharsets.UTF_8);
+            byte[] bytes = response.getBytes("UTF-8");
 
             exchange.sendResponseHeaders(200, bytes.length);
             OutputStream os = exchange.getResponseBody();

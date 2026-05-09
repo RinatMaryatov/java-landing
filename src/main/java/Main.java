@@ -1,9 +1,12 @@
 import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpExchange;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class Main {
 
@@ -13,19 +16,32 @@ public class Main {
         // Главная страница
         server.createContext("/", new HtmlHandler());
 
-        // Фон и изображения карусели берём из classpath
-        server.createContext("/background.png", new ResourceHandler("background.png"));
+        // Статические файлы из папки static
+        server.createContext("/static/", exchange -> {
+            String path = exchange.getRequestURI().getPath().replaceFirst("/static/", "");
+            try {
+                byte[] bytes = Files.readAllBytes(Paths.get("static", path));
+                String contentType = path.endsWith(".png") ? "image/png" : "application/octet-stream";
+                exchange.getResponseHeaders().add("Content-Type", contentType);
+                exchange.sendResponseHeaders(200, bytes.length);
+                OutputStream os = exchange.getResponseBody();
+                os.write(bytes);
+                os.close();
+            } catch (IOException e) {
+                exchange.sendResponseHeaders(404, -1);
+            }
+        });
 
         server.setExecutor(null);
         server.start();
         System.out.println("Server started at http://localhost:8080");
     }
 
-    // Обработчик HTML
+    // HTML
     static class HtmlHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-            String response = """
+            String html = """
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -33,20 +49,20 @@ public class Main {
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Мир Танков</title>
 <style>
-*{margin:0; padding:0; box-sizing:border-box; font-family:Arial, sans-serif;}
+*{margin:0; padding:0; box-sizing:border-box; font-family:Arial,sans-serif;}
 body{
-    background-image: url('background.png');
+    background-image: url('/static/background.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     background-attachment: fixed;
-    color: white;
-    overflow-x: hidden;
+    color:white;
+    overflow-x:hidden;
 }
 header{
     display:flex;
     justify-content: space-between;
-    padding: 20px 50px;
+    padding:20px 50px;
     background: rgba(0,0,0,0.5);
 }
 header h1{font-size:28px;}
@@ -57,94 +73,55 @@ nav a{
     font-weight:bold;
 }
 nav a:hover{color:#f9ca24;}
-.hero{
-    text-align:center;
-    margin-top:100px;
-}
-.hero h2{
-    font-size:50px;
-    text-shadow: 2px 2px 10px black;
-}
-.hero p{
-    font-size:20px;
-    margin:20px 0;
-}
+.hero{text-align:center;margin-top:100px;}
+.hero h2{font-size:50px;text-shadow:2px 2px 10px black;}
+.hero p{font-size:20px;margin:20px 0;}
 button{
-    padding:12px 25px;
-    border:none;
-    border-radius:25px;
-    font-weight:bold;
-    cursor:pointer;
-    background:#f9ca24;
-    transition:0.3s;
+    padding:12px 25px;border:none;border-radius:25px;font-weight:bold;
+    cursor:pointer;background:#f9ca24;transition:0.3s;
 }
-button:hover{
-    transform:scale(1.1);
-}
+button:hover{transform:scale(1.1);}
 .carousel{
-    display:flex;
-    justify-content:center;
-    margin-top:50px;
-    gap:20px;
-    flex-wrap: wrap;
+    display:flex;justify-content:center;margin-top:50px;gap:20px;flex-wrap:wrap;
 }
-.carousel img{
-    width:200px;
-    border-radius:15px;
-    transition: transform 0.3s;
-}
-.carousel img:hover{
-    transform: scale(1.1);
-}
-.heart{
-    position:absolute;
-    font-size:20px;
-    animation: float 6s linear infinite;
-    opacity:0.7;
-}
-@keyframes float{
-    0%{transform:translateY(0) scale(0); opacity:0;}
-    50%{opacity:1;}
-    100%{transform:translateY(-110vh) scale(1.5); opacity:0;}
-}
-@media (max-width: 768px){
-    .hero h2{font-size:36px;}
-    .hero p{font-size:16px;}
-    .carousel img{width:120px;}
-}
+.carousel img{width:200px;border-radius:15px;transition:transform 0.3s;}
+.carousel img:hover{transform:scale(1.1);}
+.heart{position:absolute;font-size:20px;animation:float 6s linear infinite;opacity:0.7;}
+@keyframes float{0%{transform:translateY(0) scale(0);opacity:0;}50%{opacity:1;}100%{transform:translateY(-110vh) scale(1.5);opacity:0;}}
+@media(max-width:768px){.hero h2{font-size:36px;}.hero p{font-size:16px;}.carousel img{width:120px;}}
 </style>
 </head>
 <body>
 
 <header>
-    <h1>Мир Танков</h1>
-    <nav>
-        <a href="#">Игра</a>
-        <a href="#">Кланы</a>
-        <a href="#">Киберспорт</a>
-        <a href="#">Сообщество</a>
-    </nav>
+<h1>Мир Танков</h1>
+<nav>
+<a href="#">Игра</a>
+<a href="#">Кланы</a>
+<a href="#">Киберспорт</a>
+<a href="#">Сообщество</a>
+</nav>
 </header>
 
 <div class="hero">
-    <h2>С Днём Победы!</h2>
-    <p>Память сильнее времени. Поздравляем всех с праздником!</p>
-    <button onclick="alert('С Днём Победы!')">Посмотреть видео</button>
+<h2>С Днём Победы!</h2>
+<p>Память сильнее времени. Поздравляем всех с праздником!</p>
+<button onclick="alert('С Днём Победы!')">Посмотреть видео</button>
 </div>
 
 <div class="carousel">
-    <img src="background.png" alt="Парад 1">
-    <img src="background.png" alt="Парад 2">
-    <img src="background.png" alt="Парад 3">
+<img src="/static/parade1.png" alt="Парад 1">
+<img src="/static/parade2.png" alt="Парад 2">
+<img src="/static/parade3.png" alt="Парад 3">
 </div>
 
 <script>
 function createHeart(){
     const heart = document.createElement("div");
     heart.classList.add("heart");
-    heart.innerHTML = "🇷🇺";
-    heart.style.left = Math.random()*100 + "vw";
-    heart.style.fontSize = (20 + Math.random()*20) + "px";
+    heart.innerHTML="🇷🇺";
+    heart.style.left=Math.random()*100+"vw";
+    heart.style.fontSize=(20+Math.random()*20)+"px";
     document.body.appendChild(heart);
     setTimeout(()=>heart.remove(),6000);
 }
@@ -155,37 +132,12 @@ setInterval(createHeart,500);
 </html>
 """;
 
-            exchange.getResponseHeaders().add("Content-Type", "text/html; charset=UTF-8");
-            byte[] bytes = response.getBytes("UTF-8");
-            exchange.sendResponseHeaders(200, bytes.length);
+            exchange.getResponseHeaders().add("Content-Type","text/html; charset=UTF-8");
+            byte[] bytes = html.getBytes("UTF-8");
+            exchange.sendResponseHeaders(200,bytes.length);
             OutputStream os = exchange.getResponseBody();
             os.write(bytes);
             os.close();
-        }
-    }
-
-    // Обработчик ресурсов из classpath
-    static class ResourceHandler implements HttpHandler {
-        private final String resourceName;
-
-        public ResourceHandler(String resourceName){
-            this.resourceName = resourceName;
-        }
-
-        @Override
-        public void handle(HttpExchange exchange) throws IOException {
-            try (var is = Main.class.getClassLoader().getResourceAsStream(resourceName)) {
-                if(is == null){
-                    exchange.sendResponseHeaders(404, -1);
-                    return;
-                }
-                byte[] bytes = is.readAllBytes();
-                exchange.getResponseHeaders().add("Content-Type", "image/png");
-                exchange.sendResponseHeaders(200, bytes.length);
-                OutputStream os = exchange.getResponseBody();
-                os.write(bytes);
-                os.close();
-            }
         }
     }
 }
